@@ -114,10 +114,12 @@ class MainActivity : AppCompatActivity(), IHasReachEndOfListListener, IJokeClick
     }
 
     override fun onJokeClick() {
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.main_container, randomPictureFragment, "PictureFragment")
-            .commit()
+        if (randomPictureFragment.isVisible.not()) {
+            supportFragmentManager
+                .beginTransaction()
+                .add(R.id.main_container, randomPictureFragment, "PictureFragment")
+                .commit()
+        }
     }
 
     override fun onSpeakerClick(text: String) {

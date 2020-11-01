@@ -14,9 +14,12 @@ import com.example.kraken.network.ApiClient
 import com.example.kraken.network.IApiService
 import com.example.kraken.useCase.FetchJokesUseCase
 import com.example.kraken.useCase.IFetchJokesUseCase
+import com.example.kraken.utils.ISpeaker
+import com.example.kraken.utils.Speaker
 import com.example.kraken.utils.Status
 import com.example.kraken.view.adapter.IHasReachEndOfListListener
 import com.example.kraken.view.adapter.IJokeClickListener
+import com.example.kraken.view.adapter.ISpeakerClickListener
 import com.example.kraken.view.adapter.JokeAdapter
 import com.example.kraken.view.picture.PictureFragment
 import com.example.kraken.viewModel.MainViewModel
@@ -24,19 +27,26 @@ import com.example.kraken.viewModel.ViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity(), IHasReachEndOfListListener, IJokeClickListener {
+class MainActivity : AppCompatActivity(), IHasReachEndOfListListener, IJokeClickListener,
+    ISpeakerClickListener {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var adapter: JokeAdapter
     private val randomPictureFragment = PictureFragment()
+    private lateinit var speaker: ISpeaker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        setupTextToSpeech()
         setupViewModel()
         setupRecyclerView()
         fetchAndObserveJokes()
+    }
+
+    private fun setupTextToSpeech() {
+        speaker = Speaker(this)
     }
 
     private fun setupViewModel() {
@@ -51,7 +61,7 @@ class MainActivity : AppCompatActivity(), IHasReachEndOfListListener, IJokeClick
 
     private fun setupRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = JokeAdapter(this)
+        adapter = JokeAdapter(this, this)
         recyclerView.adapter = adapter
 
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -103,15 +113,19 @@ class MainActivity : AppCompatActivity(), IHasReachEndOfListListener, IJokeClick
         fetchAndObserveJokes()
     }
 
-    override fun onClick() {
+    override fun onJokeClick() {
         supportFragmentManager
             .beginTransaction()
             .add(R.id.main_container, randomPictureFragment, "PictureFragment")
             .commit()
     }
 
+    override fun onSpeakerClick(text: String) {
+        speaker.speak(text)
+    }
+
     override fun onBackPressed() {
-        if(randomPictureFragment.isVisible){
+        if (randomPictureFragment.isVisible) {
             supportFragmentManager
                 .beginTransaction()
                 .remove(randomPictureFragment)

@@ -1,5 +1,5 @@
 package com.example.kraken.view.adapter
 
 interface IJokeClickListener {
-    fun onClick()
+    fun onJokeClick()
 }
